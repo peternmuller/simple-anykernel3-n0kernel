@@ -1,8 +1,8 @@
-# AnyKernel3 Ramdisk Mod Script
-# osm0sis @ xda-developers
+### AnyKernel3 Ramdisk Mod Script
+## osm0sis @ xda-developers
 
-## AnyKernel setup
-# begin properties
+### AnyKernel setup
+# global properties
 properties() { '
 kernel.string=N0Kernel by EmanuelCN
 do.devicecheck=1
@@ -16,23 +16,21 @@ device.name3=
 device.name4=
 device.name5=
 supported.versions=
+supported.patchlevels=
+supported.vendorpatchlevels=
 '; } # end properties
 
 # shell variables
-block=/dev/block/bootdevice/by-name/boot;
-is_slot_device=1;
-ramdisk_compression=auto;
+BLOCK=/dev/block/bootdevice/by-name/boot;
+IS_SLOT_DEVICE=1;
+RAMDISK_COMPRESSION=auto;
 
-
-## AnyKernel methods (DO NOT CHANGE)
-# import patching functions/variables - see for reference
+# import functions/variables and setup patching - see for reference (DO NOT REMOVE)
 . tools/ak3-core.sh;
-
 
 ## AnyKernel file attributes
 # set permissions/ownership for included ramdisk files
-set_perm_recursive 0 0 750 750 $ramdisk/*;
-
+set_perm_recursive 0 0 750 750 $RAMDISK/*;
 
 ## AnyKernel install
 dump_boot;
@@ -40,24 +38,24 @@ dump_boot;
 # Begin Ramdisk Changes
 
 # migrate from /overlay to /overlay.d to enable SAR Magisk
-if [ -d $ramdisk/overlay ]; then
-  rm -rf $ramdisk/overlay;
+if [ -d $RAMDISK/overlay ]; then
+  rm -rf $RAMDISK/overlay;
 fi;
 
-write_boot;
+write_boot; # use flash_boot to skip ramdisk repack, e.g. for devices with init_boot ramdisk
 ## end install
 
-## vendor_boot shell variables
-block=/dev/block/bootdevice/by-name/vendor_boot;
-is_slot_device=1;
-ramdisk_compression=auto;
-patch_vbmeta_flag=auto;
+# vendor_boot shell variables
+BLOCK=/dev/block/bootdevice/by-name/vendor_boot;
+IS_SLOT_DEVICE=1;
+RAMDISK_COMPRESSION=auto;
+PATCH_VBMETA_FLAG=auto;
 
 # reset for vendor_boot patching
 reset_ak;
 
 # vendor_boot install
-dump_boot;
+dump_boot; # use split_boot to skip ramdisk unpack, e.g. for dtb on devices with hdr v4 but no vendor_kernel_boot
 
-write_boot;
+write_boot; # use flash_boot to skip ramdisk repack, e.g. for dtb on devices with hdr v4 but no vendor_kernel_boot
 ## end vendor_boot install
